@@ -2,13 +2,20 @@ import streamlit as st
 from PIL import Image
 import sqlite3
 import os
+import hashlib
+
+# Hardcoded password hash
+PASSWORD_HASH = "4a624430a018ee7cf98e3389bb484fa89f9eaeb3bdf5e01b1760af037607286a"
+
+# Password verification function
+def verify_password(password):
+    return hashlib.sha256(password.encode()).hexdigest() == PASSWORD_HASH
+
 
 # Specify the directory path
-#directory = '/home/james/Text2Vis/Images/gpt5-nano-Polishing_Sample'  #### On Linux
-directory = 'gpt5-nano-Polishing_Sample' ### For GitHub
+directory = '/home/james/Text2Vis/Images/gpt5-nano-Polishing_Sample'  #### On Linux
+#directory = 'gpt5-nano-Polishing_Sample' ### For GitHub
 
-# Get a sorted list of files in the directory
-sorted_files = sorted(os.listdir(directory))
 
 def create_table():
     conn = sqlite3.connect('responses.db')
@@ -257,19 +264,41 @@ def image_comparison(comparison_num, image_a):
 
 
 # Initialize session state
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False
 if 'stage' not in st.session_state:
-    st.session_state.stage = 'user_id'
+    st.session_state.stage = 'password'
 if 'user_id' not in st.session_state:
     st.session_state.user_id = None
 if 'current_comparison' not in st.session_state:
     st.session_state.current_comparison = None
+
+# PASSWORD SCREEN (NEW)
+if not st.session_state.authenticated:
+    st.header("🔐 Access Survey")
+    st.write("Enter password to continue:")
+    
+    password = st.text_input("Password", type="password")
+    
+    if st.button("Enter"):
+        if verify_password(password):
+            st.session_state.authenticated = True
+            st.session_state.stage = 'user_id'
+            st.success("Access granted!")
+            st.rerun()
+        else:
+            st.error("❌ Incorrect password")
+            st.stop()
+    st.stop()
 
 # Directory paths
 #directory = '/home/james/Text2Vis/Images/gpt4o-mini_Baseline'  # Replace with your directory path
 #ReWriter_dir = '/home/james/Text2Vis/Images/gpt4o-mini_Agent_Rewriter'
 #Polished_dir = '/home/james/Text2Vis/Images/gpt5-nano-Polishing'
 
-# Get sorted list of files
+
+# Get a sorted list of files in the directory
+sorted_files = sorted(os.listdir(directory))
 total_files = len(sorted_files)
 
 if st.session_state.stage == 'user_id':
