@@ -13,8 +13,8 @@ def verify_password(password):
 
 
 # Specify the directory path
-directory = '/home/james/Text2Vis/Images/gpt5-nano-Polishing_Sample'  #### On Linux
-#directory = 'gpt5-nano-Polishing_Sample' ### For GitHub
+#directory = '/home/james/Text2Vis/Images/gpt5-nano-Polishing_Sample'  #### On Linux
+directory = 'gpt5-nano-Polishing_Sample' ### For GitHub
 
 
 def create_table():
